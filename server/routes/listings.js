@@ -228,8 +228,18 @@ router.post('/', requireAuth, requireEmailVerified, requirePhoneVerified, upload
       return res.status(429).json({ error: `You can post up to ${MAX_LISTINGS_PER_DAY} items per day` });
     }
 
-    const flagged = looksSuspicious(`${d.title} ${d.description} ${d.wanted_in_exchange || ''}`);
-    const status = flagged ? 'pending_review' : 'active';
+        const flagged = looksSuspicious(`${d.title} ${d.description} ${d.wanted_in_exchange || ''}`);
+
+    // Sellers without a verified phone have their first 2 listings checked by an admin
+    let needsReview = false;
+    if (!req.user.phone_verified && req.user.role !== 'admin') {
+      const approved = await pool.query(
+        "SELECT COUNT(*)::int AS n FROM listings WHERE user_id = $1 AND status IN ('active','traded')",
+        [req.user.id]
+      );
+      needsReview = approved.rows[0].n < 2;
+    }
+    const status = flagged || needsReview ? 'pending_review' : 'active';
 
     const uploaded = [];
     for (const f of files) uploaded.push(await uploadToCloudinary(f.buffer));
@@ -268,8 +278,10 @@ router.post('/', requireAuth, requireEmailVerified, requirePhoneVerified, upload
 
     res.status(201).json({
       listing,
-      notice: flagged
+            notice: flagged
         ? 'Your listing is being reviewed before it goes live. To keep everyone safe, listings that include phone numbers or payment requests are checked first. Use in-app messages to contact buyers.'
+        : needsReview
+        ? 'Your listing is waiting for a quick safety review. It will go live as soon as it is approved.'
         : 'Your listing is live!',
     });
   } catch (err) {

@@ -88,7 +88,7 @@ export default function App() {
           )}
         </div>
       </nav>
-            {user && user.role !== 'admin' && (!user.email_verified || !user.phone_verified) && location.pathname !== '/verify' && (
+       {user && user.role !== 'admin' && (!user.email_verified || (user.phone_verification_required && !user.phone_verified)) && location.pathname !== '/verify' && (
         <div className="verify-banner">
           {!user.email_verified ? 'Please verify your email' : 'Please verify your phone number'} to post items and message people.{' '}
           <Link to="/verify">Verify now</Link>

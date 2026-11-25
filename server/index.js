@@ -1,4 +1,6 @@
 require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -26,7 +28,7 @@ const required = [
 ];
 const missing = required.filter((k) => !process.env[k]);
 if (missing.length) {
-  console.error(`Missing in server/.env: ${missing.join(', ')}`);
+  console.error(`Missing settings: ${missing.join(', ')}`);
   process.exit(1);
 }
 if (process.env.JWT_SECRET.length < 32) {
@@ -45,14 +47,30 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
 
 const app = express();
 app.disable('x-powered-by');
-if (isProd) app.set('trust proxy', 1); // behind a hosting proxy, so rate limits see real visitor IPs
+if (isProd) app.set('trust proxy', 1); // behind Render's proxy, so rate limits see real visitor IPs
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+  })
+);
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
 app.use(checkOrigin);
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 600, standardHeaders: true, legacyHeaders: false }));
+app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 600, standardHeaders: true, legacyHeaders: false }));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
@@ -65,6 +83,18 @@ app.use('/api/verify', verifyRoutes);
 app.use('/api/reviews', reviewRoutes);
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
+// In production, this same server also delivers the React website
+const distDir = path.join(__dirname, '..', 'client', 'dist');
+if (isProd && fs.existsSync(distDir)) {
+  app.use('/assets', express.static(path.join(distDir, 'assets'), { immutable: true, maxAge: '1y' }));
+  app.use(express.static(distDir, { index: false }));
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
+    res.set('Cache-Control', 'no-cache');
+    res.sendFile(path.join(distDir, 'index.html'));
+  });
+}
 
 // Never leak internal error details to visitors
 app.use((err, req, res, next) => {

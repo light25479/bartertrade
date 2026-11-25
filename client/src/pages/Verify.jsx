@@ -49,8 +49,7 @@ export default function Verify() {
       setMsg('Your phone number is verified.');
     });
   };
-
-  const allDone = user.email_verified && user.phone_verified;
+  const allDone = user.email_verified && (user.phone_verified || !user.phone_verification_required);
 
   return (
     <div className="card">
@@ -74,7 +73,9 @@ export default function Verify() {
       )}
 
       <h3>2. Phone {user.phone_verified ? '✓' : ''}</h3>
-      {user.phone_verified ? (
+            {!user.phone_verification_required ? (
+        <p className="meta">Phone verification is not required right now.</p>
+      ) : user.phone_verified ? (
         <p className="meta">Your phone number is verified.</p>
       ) : !user.email_verified ? (
         <p className="meta">Verify your email first.</p>

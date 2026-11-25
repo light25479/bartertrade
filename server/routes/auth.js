@@ -128,7 +128,9 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/me', requireAuth, (req, res) => {
-  res.json({ user: req.user });
+  res.json({
+    user: { ...req.user, phone_verification_required: process.env.REQUIRE_PHONE_VERIFICATION !== 'false' },
+  });
 });
 // ---------- Password reset and change ----------
 const resetLimiter = rateLimit({

@@ -8,6 +8,7 @@ function requireEmailVerified(req, res, next) {
 }
 
 function requirePhoneVerified(req, res, next) {
+  if (process.env.REQUIRE_PHONE_VERIFICATION === 'false') return next();
   if (req.user.role === 'admin' || req.user.phone_verified) return next();
   res.status(403).json({
     error: 'Please verify your phone number first. You can do this on the Verify page.',
