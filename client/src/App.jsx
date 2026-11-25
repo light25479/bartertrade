@@ -11,7 +11,7 @@ import MyListings from './pages/MyListings';
 import Inbox from './pages/Inbox';
 import Thread from './pages/Thread';
 import Admin from './pages/Admin';
-import Verify from './pages/verify';
+import Verify from './pages/Verify';
 import VerifyEmail from './pages/VerifyEmail';
 import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
