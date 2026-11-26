@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../api';
-import { priceLabel } from '../constants';
+import { priceLabel, thumb } from '../constants';
 
 const STATUS_LABEL = { active: 'Live', traded: 'Traded', pending_review: 'Under review' };
 
@@ -34,13 +34,23 @@ export default function MyListings() {
 
       {listings && listings.map((l) => (
         <div key={l.id} className="my-row">
-          {l.image_url && <img src={l.image_url} alt="" />}
+         {l.image_url && <img src={thumb(l.image_url, 160)} alt="" />}
           <div className="grow">
             {l.status === 'pending_review'
               ? <strong>{l.title}</strong>
               : <Link to={`/listing/${l.id}`}><strong>{l.title}</strong></Link>}
             <div className="meta">{priceLabel(l)} · {STATUS_LABEL[l.status]}</div>
           </div>
+                    {l.status === 'active' && (
+            <a
+              className="share-btn wa"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`https://wa.me/?text=${encodeURIComponent(`${l.title} – ${priceLabel(l)} on BarterTrade: ${window.location.origin}/listing/${l.id}`)}`}
+            >
+              Share
+            </a>
+          )}
           {l.status === 'active' && <button onClick={() => setStatus(l.id, 'traded')}>Mark traded</button>}
           <button className="danger" onClick={() => setStatus(l.id, 'removed')}>Remove</button>
         </div>

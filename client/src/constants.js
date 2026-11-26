@@ -25,3 +25,13 @@ export function priceLabel(l) {
   const price = `KES ${Number(l.price_kes).toLocaleString()}`;
   return l.listing_type === 'both' ? `${price} or swap` : price;
 }
+// Smaller, lighter copies of photos from Cloudinary. This saves a lot of mobile data.
+export function thumb(url, width = 400) {
+  if (!url || !url.includes('/upload/')) return url;
+  return url.replace('/upload/', `/upload/c_fill,w_${width},h_${Math.round(width * 0.75)},q_auto,f_auto/`);
+}
+
+export function fit(url, width = 1000) {
+  if (!url || !url.includes('/upload/')) return url;
+  return url.replace('/upload/', `/upload/c_limit,w_${width},q_auto,f_auto/`);
+}

@@ -184,3 +184,27 @@ nav .menu-btn { display: none; }
   .row-buttons { flex-direction: column; align-items: flex-start; gap: 4px; }
   .price.big { font-size: 20px; }
 }
+.share-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.share-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 9px 14px; min-height: 40px; border: 1px solid #1f6f43; border-radius: 6px;
+  background: white; color: #1f6f43; font-size: 14px; text-decoration: none; cursor: pointer;
+}
+.share-btn.wa { background: #128c7e; border-color: #128c7e; color: white; }
+.photo-field { margin-bottom: 14px; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 8px; }
+.photo-item { position: relative; border: 1px solid #d5ded7; border-radius: 8px; overflow: hidden; background: #f4f6f4; }
+.photo-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.cover-tag { position: absolute; top: 6px; left: 6px; background: #1f6f43; color: white; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+.photo-size { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.6); color: white; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+.photo-actions { display: flex; flex-direction: column; }
+form .photo-actions button {
+  width: 100%; padding: 8px 4px; font-size: 13px; background: white; color: #1f6f43;
+  border: none; border-top: 1px solid #d5ded7; border-radius: 0; cursor: pointer;
+}
+form .photo-actions button:last-child { color: #b3261e; }
+form label.photo-add {
+  display: flex; align-items: center; justify-content: center; aspect-ratio: 1; margin: 0;
+  border: 2px dashed #9fb8a8; border-radius: 8px; color: #1f6f43; font-size: 14px; text-align: center; cursor: pointer;
+}
+.photo-add input[type='file'] { display: none; }

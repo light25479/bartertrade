@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
-import { CONDITIONS, priceLabel } from '../constants';
+import { CONDITIONS, priceLabel, fit, thumb } from '../constants';
 import ReportButton from '../components/ReportButton';
+import ShareButtons from '../components/ShareButtons';
 function ContactBox({ listing }) {
   const navigate = useNavigate();
   const [tab, setTab] = useState('message');
@@ -108,10 +109,10 @@ export default function ListingDetail() {
   return (
     <div className="detail">
       <div className="gallery">
-        {images[active] && <img className="main-img" src={images[active]} alt={l.title} />}
+   {images[active] && <img className="main-img" src={fit(images[active], 1000)} alt={l.title} />}
         <div className="thumbs">
           {images.map((url, i) => (
-            <img key={url} src={url} alt="" className={i === active ? 'on' : ''} onClick={() => setActive(i)} />
+         <img key={url} src={thumb(url, 160)} alt="" className={i === active ? 'on' : ''} onClick={() => setActive(i)} />
           ))}
         </div>
       </div>
@@ -126,7 +127,7 @@ export default function ListingDetail() {
           {l.county ? ` · ${l.county}` : ''}
         </p>
         <p style={{ whiteSpace: 'pre-wrap' }}>{l.description}</p>
-
+        <ShareButtons title={l.title} text={`${l.title} – ${priceLabel(l)} on BarterTrade:`} />
         <div className="seller">
         <strong><Link to={`/user/${l.user_id}`}>{l.seller_name}</Link></strong>
           <span className="meta">

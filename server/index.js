@@ -15,6 +15,7 @@ const reportRoutes = require('./routes/reports');
 const adminRoutes = require('./routes/admin');
 const verifyRoutes = require('./routes/verify');
 const reviewRoutes = require('./routes/reviews');
+const { renderPage } = require('./preview');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -89,10 +90,19 @@ const distDir = path.join(__dirname, '..', 'client', 'dist');
 if (isProd && fs.existsSync(distDir)) {
   app.use('/assets', express.static(path.join(distDir, 'assets'), { immutable: true, maxAge: '1y' }));
   app.use(express.static(distDir, { index: false }));
-  app.use((req, res, next) => {
+
+  const indexHtml = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
+  const hasDefaultImage = fs.existsSync(path.join(distDir, 'og-default.png'));
+
+  app.use(async (req, res, next) => {
     if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
-    res.set('Cache-Control', 'no-cache');
-    res.sendFile(path.join(distDir, 'index.html'));
+    try {
+      const html = await renderPage(indexHtml, req, { origin: allowedOrigins[0], hasDefaultImage });
+      res.set('Cache-Control', 'no-cache');
+      res.type('html').send(html);
+    } catch (err) {
+      next(err);
+    }
   });
 }
 

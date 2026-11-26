@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
-import { CONDITIONS, priceLabel } from '../constants';
+import { CONDITIONS, priceLabel, thumb } from '../constants';
 
 export default function ListingCard({ listing }) {
   return (
     <Link to={`/listing/${listing.id}`} className="listing-card">
       <div className="thumb">
         {listing.image_url ? (
-          <img src={listing.image_url} alt={listing.title} loading="lazy" />
+                    <img src={thumb(listing.image_url, 400)} alt={listing.title} loading="lazy" />
         ) : (
           <div className="no-image">No photo</div>
         )}
