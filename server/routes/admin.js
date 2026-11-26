@@ -57,9 +57,14 @@ router.patch('/listings/:id/status', wrap(async (req, res) => {
   const { status } = parsed.data;
 
   const allowedFrom = status === 'active' ? ['pending_review'] : ['active', 'pending_review', 'traded'];
-  const r = await pool.query('UPDATE listings SET status = $1 WHERE id = $2 AND status = ANY($3)', [
-    status, req.params.id, allowedFrom,
-  ]);
+    const r = await pool.query(
+    `UPDATE listings
+     SET status = $1::text,
+         expires_at = CASE WHEN $1::text = 'active' THEN now() + interval '60 days' ELSE expires_at END,
+         expiry_reminded = CASE WHEN $1::text = 'active' THEN FALSE ELSE expiry_reminded END
+     WHERE id = $2 AND status = ANY($3)`,
+    [status, req.params.id, allowedFrom]
+  );
   if (!r.rowCount) return res.status(409).json({ error: 'Listing not found or already handled' });
 
   // Close out reports on this listing so a re-approved item is not instantly hidden again

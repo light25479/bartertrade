@@ -162,7 +162,7 @@ router.get('/', async (req, res) => {
 router.get('/mine/all', requireAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT l.id, l.title, l.status, l.listing_type, l.price_kes, l.created_at,
+            `SELECT l.id, l.title, l.status, l.listing_type, l.price_kes, l.created_at, l.expires_at,
               (SELECT url FROM listing_images i WHERE i.listing_id = l.id ORDER BY position LIMIT 1) AS image_url
        FROM listings l
        WHERE l.user_id = $1 AND l.status <> 'removed'
@@ -297,7 +297,7 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
   if (!idOk || !parsed.success) return res.status(400).json({ error: 'Invalid request' });
 
   // A held listing can only be removed, never marked traded (that would make it public)
-  const allowedFrom = parsed.data.status === 'traded' ? ['active'] : ['active', 'pending_review', 'traded'];
+    const allowedFrom = parsed.data.status === 'traded' ? ['active'] : ['active', 'pending_review', 'traded', 'expired'];
 
   try {
     const { rowCount } = await pool.query(
@@ -311,5 +311,21 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Something went wrong' });
   }
 });
-
+// ---------- Renew for another 60 days ----------
+router.post('/:id/renew', requireAuth, async (req, res) => {
+  if (!uuidSchema.safeParse(req.params.id).success) return res.status(404).json({ error: 'Listing not found' });
+  try {
+    const r = await pool.query(
+      `UPDATE listings
+       SET status = 'active', expires_at = now() + interval '60 days', expiry_reminded = FALSE
+       WHERE id = $1 AND user_id = $2 AND status IN ('active', 'expired')`,
+      [req.params.id, req.user.id]
+    );
+    if (!r.rowCount) return res.status(404).json({ error: 'Listing not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
 module.exports = router;

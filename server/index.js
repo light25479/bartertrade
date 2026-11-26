@@ -16,6 +16,7 @@ const adminRoutes = require('./routes/admin');
 const verifyRoutes = require('./routes/verify');
 const reviewRoutes = require('./routes/reviews');
 const { renderPage } = require('./preview');
+const { startJobs } = require('./jobs');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -117,4 +118,7 @@ app.use((err, req, res, next) => {
 process.on('unhandledRejection', (reason) => console.error('Unhandled rejection:', reason));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`API running on http://localhost:${PORT}`);
+  startJobs();
+});

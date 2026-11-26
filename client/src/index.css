@@ -208,3 +208,4 @@ form label.photo-add {
   border: 2px dashed #9fb8a8; border-radius: 8px; color: #1f6f43; font-size: 14px; text-align: center; cursor: pointer;
 }
 .photo-add input[type='file'] { display: none; }
+.soon { color: #b3261e; font-weight: 600; }

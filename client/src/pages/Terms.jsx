@@ -34,6 +34,7 @@ const sections = [
         ],
       },
       'We may hold a listing for review, remove it, or ask you to change it if it breaks these terms or looks unsafe.',
+       'Listings stay live for 60 days, then expire unless you renew them from My listings.',
     ],
   },
   {
