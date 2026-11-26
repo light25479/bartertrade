@@ -65,7 +65,7 @@ export default function App() {
       window.removeEventListener('bt:event', onEvent);
     };
   }, [user, location.pathname]);
-
+    if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
   return (
     <>
       <nav>
