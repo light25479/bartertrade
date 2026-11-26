@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Login() {
   const { login } = useAuth();
@@ -30,10 +31,10 @@ export default function Login() {
       <h2>Log in</h2>
       <form onSubmit={handleSubmit}>
         <label>Email
-          <input name="email" type="email" value={form.email} onChange={update} required />
+          <input name="email" type="email" value={form.email} onChange={update} required autoComplete="email" />
         </label>
         <label>Password
-          <input name="password" type="password" value={form.password} onChange={update} required />
+          <PasswordInput name="password" value={form.password} onChange={update} autoComplete="current-password" />
         </label>
         {error && <p className="error">{error}</p>}
         <button disabled={busy}>{busy ? 'Logging in...' : 'Log in'}</button>

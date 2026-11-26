@@ -33,7 +33,8 @@ export default function App() {
   const { user, loading, logout } = useAuth();
   const location = useLocation();
   const [unread, setUnread] = useState(0);
-
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
     // One live connection per logged-in user; broadcasts events to the page
   useEffect(() => {
     if (!user) return;
@@ -72,9 +73,18 @@ export default function App() {
     if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
   return (
     <>
-      <nav>
+            <nav>
         <Link to="/" className="brand">BarterTrade</Link>
-        <div>
+        <button
+          type="button"
+          className="menu-btn"
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? '✕' : '☰'}
+        </button>
+        <div className={`nav-links${menuOpen ? ' open' : ''}`}>
           {user ? (
             <>
               <Link to="/new">Post an item</Link>

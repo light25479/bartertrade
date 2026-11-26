@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', county: '', password: '', accept_terms: false });
+  const [form, setForm] = useState({
+    name: '', email: '', phone: '', county: '', password: '', accept_terms: false,
+  });
+  const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
   const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const mismatch = confirm.length > 0 && form.password !== confirm;
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    if (form.password !== confirm) return setError('The two passwords do not match');
     setBusy(true);
     try {
       await signup(form);
@@ -30,33 +36,42 @@ export default function Signup() {
       <h2>Create your account</h2>
       <form onSubmit={handleSubmit}>
         <label>Full name
-          <input name="name" value={form.name} onChange={update} required />
+          <input name="name" value={form.name} onChange={update} required autoComplete="name" />
         </label>
         <label>Email
-          <input name="email" type="email" value={form.email} onChange={update} required />
+          <input name="email" type="email" value={form.email} onChange={update} required autoComplete="email" />
         </label>
         <label>Phone (e.g. +254712345678)
-          <input name="phone" value={form.phone} onChange={update} required />
+          <input name="phone" type="tel" value={form.phone} onChange={update} required autoComplete="tel" />
         </label>
         <label>County / City
           <input name="county" value={form.county} onChange={update} />
         </label>
         <label>Password (min 10 characters)
-          <input name="password" type="password" value={form.password} onChange={update} required minLength={10} />
+          <PasswordInput name="password" value={form.password} onChange={update} minLength={10} autoComplete="new-password" />
         </label>
-                <label className="check">
+        <label>Confirm password
+          <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={10} autoComplete="new-password" />
+        </label>
+        {mismatch && <p className="error">Passwords do not match</p>}
+        {confirm.length > 0 && !mismatch && <p className="ok">Passwords match ✓</p>}
+
+        <label className="check">
           <input
             type="checkbox"
             checked={form.accept_terms}
             onChange={(e) => setForm({ ...form, accept_terms: e.target.checked })}
             required
           />
-          I am 18 or older and I agree to the{' '}
-          <Link to="/terms" target="_blank">Terms of Use</Link> and{' '}
-          <Link to="/privacy" target="_blank">Privacy Policy</Link>
+          <span>
+            I am 18 or older and I agree to the{' '}
+            <Link to="/terms" target="_blank">Terms of Use</Link> and{' '}
+            <Link to="/privacy" target="_blank">Privacy Policy</Link>
+          </span>
         </label>
+
         {error && <p className="error">{error}</p>}
-        <button disabled={busy}>{busy ? 'Creating...' : 'Sign up'}</button>
+        <button disabled={busy || mismatch}>{busy ? 'Creating...' : 'Sign up'}</button>
       </form>
       <p>Already have an account? <Link to="/login">Log in</Link></p>
     </div>

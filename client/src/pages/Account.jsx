@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
-
+import PasswordInput from '../components/PasswordInput';
 export default function Account() {
   const { user } = useAuth();
   const [current, setCurrent] = useState('');
@@ -87,13 +87,13 @@ export default function Account() {
       <h3>Change password</h3>
       <form onSubmit={submit}>
         <label>Current password
-          <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} required />
+        <PasswordInput value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
         </label>
         <label>New password (min 10 characters)
-          <input type="password" value={next} onChange={(e) => setNext(e.target.value)} required minLength={10} />
+        <PasswordInput value={next} onChange={(e) => setNext(e.target.value)} minLength={10} autoComplete="new-password" />
         </label>
         <label>Repeat new password
-          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={10} />
+        <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={10} autoComplete="new-password" />
         </label>
         {msg && <p className="notice">{msg}</p>}
         {error && <p className="error">{error}</p>}
@@ -109,7 +109,7 @@ export default function Account() {
       <h3>Delete my account</h3>
       <form onSubmit={deleteAccount}>
         <label>Enter your password to confirm
-          <input type="password" value={deletePw} onChange={(e) => setDeletePw(e.target.value)} required />
+      <PasswordInput value={deletePw} onChange={(e) => setDeletePw(e.target.value)} autoComplete="current-password" />
         </label>
         <button className="danger-btn">Delete my account</button>
       </form>

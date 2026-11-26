@@ -110,3 +110,77 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 footer { text-align: center; padding: 28px 16px; color: #5b6b5f; font-size: 14px; }
 footer a { margin: 0 4px; }
 form button.danger-btn { background: white; color: #b3261e; border: 1px solid #b3261e; }
+/* ---------- Password eye ---------- */
+.pw-wrap { position: relative; display: block; margin-top: 4px; }
+.pw-wrap input { margin-top: 0; padding-right: 48px; }
+form .pw-wrap .pw-toggle {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 46px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; color: #5b6b5f; border: none; border-radius: 0 6px 6px 0; cursor: pointer;
+}
+form .pw-wrap .pw-toggle:hover { color: #1f6f43; }
+.ok { color: #1f6f43; font-size: 14px; }
+
+/* ---------- Layout basics for every screen ---------- */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-x: hidden; }
+img { max-width: 100%; }
+.nav-links { display: flex; align-items: center; flex-wrap: wrap; }
+nav .menu-btn { display: none; }
+.listing-card .info strong, .detail-info h2, .bubble, .review p, .my-row .grow { overflow-wrap: anywhere; }
+
+/* ---------- Tablets and phones ---------- */
+@media (max-width: 720px) {
+  nav { position: relative; padding: 12px 16px; }
+  nav .menu-btn {
+    display: block; margin-left: auto; background: transparent; color: white;
+    font-size: 24px; line-height: 1; padding: 6px 10px; border: none;
+  }
+  .nav-links {
+    display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
+    flex-direction: column; align-items: stretch; background: #1f6f43;
+    padding: 4px 16px 16px; box-shadow: 0 8px 16px rgba(0,0,0,.18);
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a, .nav-links span { margin: 0; padding: 14px 4px; border-bottom: 1px solid rgba(255,255,255,.18); }
+  .nav-links button { margin: 14px 0 0; padding: 12px; }
+
+  main { margin: 16px auto; padding: 0 12px; }
+  .card { padding: 16px; }
+  .verify-banner { padding: 10px 12px; }
+
+  /* 16px text stops iPhones from zooming in when you tap a field */
+  form input, form select, form textarea, .filters input, .filters select,
+  .chat-form textarea, .admin-select, .admin-search { font-size: 16px; }
+
+  /* Bigger tap targets */
+  form button, .pager button, .my-row button, .tabs button, .offer-card button,
+  .admin-card .actions button, .reply-btn { min-height: 44px; }
+
+  .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .listing-card .info { padding: 8px; font-size: 14px; }
+
+  .detail { gap: 16px; }
+  .main-img { max-height: 320px; }
+  .thumbs img { width: 56px; height: 56px; }
+
+  .my-row { flex-wrap: wrap; }
+  .my-row .grow { flex-basis: 60%; }
+
+  .tabs { flex-wrap: wrap; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .thumbs-row img { width: 70px; height: 70px; }
+  .admin-card .actions button { flex: 1 1 auto; }
+
+  .chat { height: calc(100vh - 130px); height: calc(100dvh - 130px); min-height: 360px; }
+  .chat-head { flex-wrap: wrap; gap: 8px; }
+  .bubble { max-width: 88%; }
+  .offer-card { width: 100%; }
+}
+
+/* ---------- Small phones ---------- */
+@media (max-width: 480px) {
+  .filters { grid-template-columns: 1fr; }
+  .row-buttons { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .price.big { font-size: 20px; }
+}

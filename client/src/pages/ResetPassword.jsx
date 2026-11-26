@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
-
+import PasswordInput from '../components/PasswordInput';
 export default function ResetPassword() {
   const [params] = useSearchParams();
   const token = params.get('token') || '';
@@ -41,10 +41,10 @@ export default function ResetPassword() {
       <h2>Choose a new password</h2>
       <form onSubmit={submit}>
         <label>New password (min 10 characters)
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={10} />
+         <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} minLength={10} autoComplete="new-password" />
         </label>
         <label>Repeat new password
-          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={10} />
+        <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} minLength={10} autoComplete="new-password" />
         </label>
         {error && <p className="error">{error}</p>}
         <button disabled={busy}>{busy ? 'Saving...' : 'Save new password'}</button>
