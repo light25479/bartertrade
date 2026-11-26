@@ -21,6 +21,7 @@ import Privacy from './pages/Privacy';
 import Rules from './pages/Rules';
 import { SITE } from './siteConfig';
 import Account from './pages/Account';
+import LogoMark from './components/LogoMark';
 function RequireAuth({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
@@ -74,7 +75,10 @@ export default function App() {
   return (
     <>
             <nav>
-        <Link to="/" className="brand">BarterTrade</Link>
+         <Link to="/" className="brand">
+           <LogoMark size={50} />
+          <span className="brand-text">Barter<b>Trade</b></span>
+        </Link>
         <button
           type="button"
           className="menu-btn"

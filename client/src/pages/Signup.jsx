@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import PasswordInput from '../components/PasswordInput';
-
 export default function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +32,7 @@ export default function Signup() {
 
   return (
     <div className="card">
+   <div className="auth-logo"><img src="/logo.png" alt="BarterTrade - Swap, Sell, Get More" /></div>
       <h2>Create your account</h2>
       <form onSubmit={handleSubmit}>
         <label>Full name
