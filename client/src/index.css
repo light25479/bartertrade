@@ -102,3 +102,11 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .profile-head { background: white; padding: 18px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
 .profile-head h2 { margin: 0 0 4px; }
 .review { background: white; padding: 12px 14px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.card.legal { max-width: 760px; }
+.legal h3 { margin: 26px 0 6px; }
+.legal p, .legal li { line-height: 1.55; }
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+.check input { width: auto; display: inline-block; margin-top: 3px; }
+footer { text-align: center; padding: 28px 16px; color: #5b6b5f; font-size: 14px; }
+footer a { margin: 0 4px; }
+form button.danger-btn { background: white; color: #b3261e; border: 1px solid #b3261e; }

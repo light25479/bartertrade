@@ -11,7 +11,7 @@ export default function Account() {
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-
+  const [deletePw, setDeletePw] = useState('');
   async function submit(e) {
     e.preventDefault();
     setError('');
@@ -40,6 +40,34 @@ export default function Account() {
     try {
       await api('/auth/logout-all', { method: 'POST' });
       setMsg('All other devices have been logged out.');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+    async function downloadData() {
+    setError('');
+    setMsg('');
+    try {
+      const data = await api('/auth/export');
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bartertrade-my-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function deleteAccount(e) {
+    e.preventDefault();
+    if (!window.confirm('This permanently deletes your account, listings, messages and reviews. It cannot be undone. Continue?')) return;
+    setError('');
+    try {
+      await api('/auth/me', { method: 'DELETE', body: { password: deletePw } });
+      window.location.href = '/';
     } catch (err) {
       setError(err.message);
     }
@@ -74,6 +102,17 @@ export default function Account() {
             <h3>Security</h3>
       <p className="meta">If you think someone else has your account, change your password above, then log out everywhere.</p>
       <button type="button" className="link-btn" onClick={logoutAll}>Log out of all devices</button>
+            <h3>Your data</h3>
+      <p className="meta">You can download a copy of everything we hold about you, or delete your account permanently.</p>
+      <button type="button" className="link-btn" onClick={downloadData}>Download my data</button>
+
+      <h3>Delete my account</h3>
+      <form onSubmit={deleteAccount}>
+        <label>Enter your password to confirm
+          <input type="password" value={deletePw} onChange={(e) => setDeletePw(e.target.value)} required />
+        </label>
+        <button className="danger-btn">Delete my account</button>
+      </form>
     </div>
   );
 }

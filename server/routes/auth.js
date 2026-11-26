@@ -8,6 +8,7 @@ const requireAuth = require('../middleware/auth');
 const crypto = require('crypto');
 const { sendEmailVerification, hmac, issueCode, checkSendLimits } = require('../verification');
 const { sendMail } = require('../mailer');
+const cloudinary = require('../cloudinary');
 const router = express.Router();
 
 // Strict limit on signup/login to slow down password guessing and bot signups
@@ -23,6 +24,7 @@ const signupSchema = z.object({
   phone: z.string().trim().regex(/^\+?[0-9]{9,15}$/, 'Enter a valid phone number'),
   county: z.string().trim().max(60).optional(),
   password: z.string().min(10, 'Password must be at least 10 characters').max(128),
+  accept_terms: z.boolean().refine((v) => v === true, { message: 'You must accept the Terms and Privacy Policy' }),
 });
 
 const loginSchema = z.object({
@@ -51,9 +53,9 @@ router.post('/signup', authLimiter, async (req, res) => {
 
   try {
     const passwordHash = await argon2.hash(password);
-    const { rows } = await pool.query(
-      `INSERT INTO users (name, email, phone, county, password_hash)
-       VALUES ($1, $2, $3, $4, $5)
+        const { rows } = await pool.query(
+      `INSERT INTO users (name, email, phone, county, password_hash, terms_accepted_at)
+       VALUES ($1, $2, $3, $4, $5, now())
        RETURNING id, name, email, role`,
       [name, email, phone, county || null, passwordHash]
     );
@@ -268,6 +270,97 @@ router.post('/logout-all', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+// ---------- Download my data ----------
+router.get('/export', requireAuth, async (req, res) => {
+  const id = req.user.id;
+  try {
+    const [profile, listings, messages, offers, reviews, reports] = await Promise.all([
+      pool.query(
+        `SELECT id, name, email, phone, county, role, email_verified, phone_verified, created_at, terms_accepted_at
+         FROM users WHERE id = $1`,
+        [id]
+      ),
+      pool.query(
+        `SELECT l.id, l.title, l.description, l.category, l.item_condition, l.listing_type, l.price_kes,
+                l.wanted_in_exchange, l.county, l.status, l.created_at,
+                COALESCE((SELECT json_agg(url ORDER BY position) FROM listing_images i WHERE i.listing_id = l.id), '[]') AS images
+         FROM listings l WHERE l.user_id = $1 ORDER BY l.created_at DESC`,
+        [id]
+      ),
+      pool.query(
+        `SELECT id, listing_id, sender_id, recipient_id, body, created_at FROM messages
+         WHERE sender_id = $1 OR recipient_id = $1 ORDER BY created_at LIMIT 10000`,
+        [id]
+      ),
+      pool.query(
+        `SELECT o.id, o.listing_id, o.buyer_id, o.offered_item, o.offered_price_kes, o.message, o.status, o.created_at
+         FROM offers o WHERE o.buyer_id = $1 OR o.listing_id IN (SELECT id FROM listings WHERE user_id = $1)`,
+        [id]
+      ),
+      pool.query(
+        `SELECT id, offer_id, reviewer_id, reviewee_id, rating, comment, created_at FROM reviews
+         WHERE reviewer_id = $1 OR reviewee_id = $1`,
+        [id]
+      ),
+      pool.query(
+        `SELECT id, listing_id, reported_user_id, reason, details, status, created_at FROM reports WHERE reporter_id = $1`,
+        [id]
+      ),
+    ]);
+
+    res.json({
+      exported_at: new Date().toISOString(),
+      profile: profile.rows[0],
+      listings: listings.rows,
+      messages: messages.rows,
+      offers: offers.rows,
+      reviews: reviews.rows,
+      reports_filed: reports.rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+// ---------- Delete my account ----------
+function publicIdFromUrl(url) {
+  const m = String(url).match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/);
+  return m ? m[1] : null;
+}
+
+router.delete('/me', requireAuth, authLimiter, async (req, res) => {
+  const parsed = z.object({ password: z.string().min(1).max(128) }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: 'Please enter your password to confirm' });
+
+  try {
+    const { rows } = await pool.query('SELECT password_hash, role FROM users WHERE id = $1', [req.user.id]);
+    const me = rows[0];
+    if (me.role === 'admin') return res.status(400).json({ error: 'Admin accounts cannot be deleted here' });
+    if (!(await argon2.verify(me.password_hash, parsed.data.password))) {
+      return res.status(400).json({ error: 'Your password is not correct' });
+    }
+
+    const images = await pool.query(
+      'SELECT i.url FROM listing_images i JOIN listings l ON l.id = i.listing_id WHERE l.user_id = $1',
+      [req.user.id]
+    );
+
+    // Listings, offers, messages, reviews, reports and codes are removed automatically with the user
+    await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
+    res.clearCookie('token');
+    res.json({ ok: true });
+
+    // Remove the photos from Cloudinary afterwards (best effort)
+    for (const { url } of images.rows) {
+      const publicId = publicIdFromUrl(url);
+      if (publicId) cloudinary.uploader.destroy(publicId).catch(() => {});
+    }
+  } catch (err) {
+    console.error(err);
+    if (!res.headersSent) res.status(500).json({ error: 'Something went wrong' });
   }
 });
 module.exports = router;

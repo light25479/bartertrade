@@ -16,6 +16,10 @@ import VerifyEmail from './pages/VerifyEmail';
 import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Rules from './pages/Rules';
+import { SITE } from './siteConfig';
 import Account from './pages/Account';
 function RequireAuth({ children }) {
   const { user } = useAuth();
@@ -110,9 +114,16 @@ export default function App() {
           <Route path="/user/:id" element={<Profile />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/rules" element={<Rules />} />
           <Route path="/account" element={<RequireAuth><Account /></RequireAuth>} />
         </Routes>
       </main>
+            <footer>
+        <Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> · <Link to="/rules">Safety &amp; rules</Link> ·{' '}
+        <a href={`mailto:${SITE.contactEmail}`}>Contact</a>
+      </footer>
     </>
   );
 }
