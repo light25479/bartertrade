@@ -2,7 +2,7 @@ const express = require('express');
 const { z } = require('zod');
 const pool = require('../db');
 const requireAuth = require('../middleware/auth');
-
+const { alertAdmins } = require('../alerts');
 const router = express.Router();
 router.use(requireAuth);
 
@@ -60,13 +60,20 @@ router.post('/', async (req, res) => {
     );
 
     // Auto-hide: 3 different people reporting the same listing holds it for review
+       alertAdmins(`New report (${reason}) about ${listing_id ? 'a listing' : 'a user'}`);
+
+    // Auto-hide: 3 different people reporting the same listing holds it for review
     if (listing_id) {
       const c = await pool.query(
         "SELECT COUNT(DISTINCT reporter_id)::int AS n FROM reports WHERE listing_id = $1 AND status = 'open'",
         [listing_id]
       );
       if (c.rows[0].n >= 3) {
-        await pool.query("UPDATE listings SET status = 'pending_review' WHERE id = $1 AND status = 'active'", [listing_id]);
+        const hidden = await pool.query(
+          "UPDATE listings SET status = 'pending_review' WHERE id = $1 AND status = 'active'",
+          [listing_id]
+        );
+        if (hidden.rowCount) alertAdmins('A listing was hidden automatically after reports from 3 different people');
       }
     }
 

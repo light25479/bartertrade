@@ -22,6 +22,7 @@ import Rules from './pages/Rules';
 import { SITE } from './siteConfig';
 import Account from './pages/Account';
 import LogoMark from './components/LogoMark';
+import InstallPrompt from './components/InstallPrompt';
 function RequireAuth({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
@@ -138,6 +139,7 @@ export default function App() {
         <Link to="/terms">Terms</Link> · <Link to="/privacy">Privacy</Link> · <Link to="/rules">Safety &amp; rules</Link> ·{' '}
         <a href={`mailto:${SITE.contactEmail}`}>Contact</a>
       </footer>
+            <InstallPrompt />
     </>
   );
 }

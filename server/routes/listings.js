@@ -6,6 +6,7 @@ const cloudinary = require('../cloudinary');
 const requireAuth = require('../middleware/auth');
 const { CATEGORIES } = require('../categories');
 const { requireEmailVerified, requirePhoneVerified } = require('../middleware/verified');
+const { alertAdmins } = require('../alerts');
 const router = express.Router();
 
 const PAGE_SIZE = 12;
@@ -275,7 +276,10 @@ router.post('/', requireAuth, requireEmailVerified, requirePhoneVerified, upload
     } finally {
       client.release();
     }
-
+    if (status === 'pending_review') {
+      const title = d.title.replace(/\s+/g, ' ').slice(0, 80);
+      alertAdmins(`New listing waiting for approval: "${title}" (${flagged ? 'flagged by the scam filter' : 'new seller'})`);
+    }
     res.status(201).json({
       listing,
             notice: flagged
