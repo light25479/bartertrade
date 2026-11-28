@@ -133,6 +133,7 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/rules" element={<Rules />} />
           <Route path="/account" element={<RequireAuth><Account /></RequireAuth>} />
+          <Route path="/category/:slug" element={<Home />} />
         </Routes>
       </main>
             <footer>

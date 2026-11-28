@@ -5,6 +5,10 @@ import { useAuth } from '../AuthContext';
 import { CONDITIONS, priceLabel, fit, thumb } from '../constants';
 import ReportButton from '../components/ReportButton';
 import ShareButtons from '../components/ShareButtons';
+import { CONDITIONS, priceLabel, fit, thumb, slugify } from '../constants';
+import usePageTitle from '../usePageTitle';
+
+
 function ContactBox({ listing }) {
   const navigate = useNavigate();
   const [tab, setTab] = useState('message');
@@ -99,7 +103,9 @@ export default function ListingDetail() {
 
   useEffect(() => {
     api(`/listings/${id}`).then(setData).catch((e) => setError(e.message));
-  }, [id]);
+      usePageTitle(data ? data.listing.title : 'Item');
+  }, [id])
+   
 
   if (error) return <p className="error">{error}</p>;
   if (!data) return <p>Loading...</p>;
@@ -119,6 +125,7 @@ export default function ListingDetail() {
 
       <div className="detail-info">
         {l.status === 'traded' && <p className="badge">This item has been traded</p>}
+        <p className="crumbs"><Link to="/">Home</Link> › <Link to={`/category/${slugify(l.category)}`}>{l.category}</Link></p>
         <h2>{l.title}</h2>
         <p className="price big">{priceLabel(l)}</p>
         {l.wanted_in_exchange && <p><strong>Wants in exchange:</strong> {l.wanted_in_exchange}</p>}

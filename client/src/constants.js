@@ -35,3 +35,7 @@ export function fit(url, width = 1000) {
   if (!url || !url.includes('/upload/')) return url;
   return url.replace('/upload/', `/upload/c_limit,w_${width},q_auto,f_auto/`);
 }
+export const slugify = (c) =>
+  c.toLowerCase().replace(/&/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+export const categoryFromSlug = (slug) => CATEGORIES.find((c) => slugify(c) === slug);

@@ -15,7 +15,7 @@ const reportRoutes = require('./routes/reports');
 const adminRoutes = require('./routes/admin');
 const verifyRoutes = require('./routes/verify');
 const reviewRoutes = require('./routes/reviews');
-const { renderPage } = require('./preview');
+const { renderPage, robotsHandler, sitemapHandler } = require('./seo');
 const { startJobs } = require('./jobs');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -75,6 +75,14 @@ app.use(checkOrigin);
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 600, standardHeaders: true, legacyHeaders: false }));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/robots.txt', robotsHandler(allowedOrigins[0]));
+app.get('/sitemap.xml', sitemapHandler(allowedOrigins[0]));
+
+// Keep the data API itself out of search results
+app.use('/api', (req, res, next) => {
+  res.set('X-Robots-Tag', 'noindex');
+  next();
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/messages', messageRoutes);
@@ -95,12 +103,13 @@ if (isProd && fs.existsSync(distDir)) {
   const indexHtml = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
   const hasDefaultImage = fs.existsSync(path.join(distDir, 'og-default.png'));
 
-  app.use(async (req, res, next) => {
+   app.use(async (req, res, next) => {
     if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
     try {
-      const html = await renderPage(indexHtml, req, { origin: allowedOrigins[0], hasDefaultImage });
-      res.set('Cache-Control', 'no-cache');
-      res.type('html').send(html);
+      const page = await renderPage(indexHtml, req, { origin: allowedOrigins[0], hasDefaultImage });
+      res.status(page.status).set('Cache-Control', 'no-cache');
+      if (page.noindex) res.set('X-Robots-Tag', 'noindex, follow');
+      res.type('html').send(page.html);
     } catch (err) {
       next(err);
     }

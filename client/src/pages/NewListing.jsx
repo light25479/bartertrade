@@ -98,6 +98,7 @@ export default function NewListing() {
         <label>Title
           <input name="title" value={form.title} onChange={update} required maxLength={100} />
         </label>
+                <p className="meta">Tip: be specific. "Samsung Galaxy A14 128GB, like new" gets found far more often than "Phone for sale".</p>
         <label>Category
           <select name="category" value={form.category} onChange={update}>
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}

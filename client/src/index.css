@@ -243,4 +243,10 @@ nav .menu-btn { background: transparent; color: #0b1d51; }
 .install-bar img { border-radius: 8px; }
 .install-bar .grow { flex: 1; font-size: 14px; }
 .install-bar button { padding: 8px 14px; border: none; border-radius: 6px; background: #0b1d51; color: #fff; cursor: pointer; font-size: 14px; }
-.install-bar .install-close { background: transparent; color: #5a6275; padding: 8px; }
+.install-bar .install-close { background: transparent; color: #5a6275; padding: 8px; }.chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; -webkit-overflow-scrolling: touch; }
+.chip {
+  flex: 0 0 auto; padding: 7px 14px; border: 1px solid #c9d2ea; border-radius: 20px;
+  background: #fff; color: #0b1d51; text-decoration: none; font-size: 14px; white-space: nowrap;
+}
+.chip.on { background: #0b1d51; color: #fff; border-color: #0b1d51; }
+.crumbs { font-size: 14px; color: #5a6275; margin: 0 0 8px; }
