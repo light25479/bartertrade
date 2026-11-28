@@ -8,7 +8,8 @@ export async function api(path, options = {}) {
     credentials: 'include',
     body: options.body ? (isForm ? options.body : JSON.stringify(options.body)) : undefined,
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Something went wrong');
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new Error((data && data.error) || 'Something went wrong');
+  if (data === null) throw new Error('The server sent an unexpected reply. Please try again.');
   return data;
 }

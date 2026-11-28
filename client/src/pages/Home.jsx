@@ -32,7 +32,12 @@ export default function Home() {
 
     const timer = setTimeout(() => {
       api(`/listings?${params}`)
-        .then((d) => { if (!cancelled) { setData(d); setError(''); } })
+            .then((d) => {
+          if (!cancelled) {
+            setData({ listings: d.listings || [], totalPages: d.totalPages || 1 });
+            setError('');
+          }
+        })
         .catch((e) => { if (!cancelled) setError(e.message); })
         .finally(() => { if (!cancelled) setLoading(false); });
     }, 300);

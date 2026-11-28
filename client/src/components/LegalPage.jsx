@@ -1,6 +1,8 @@
 import usePageTitle from '../usePageTitle';
-  usePageTitle(title);
+
 export default function LegalPage({ title, updated, intro, sections }) {
+  usePageTitle(title);
+
   return (
     <div className="card legal">
       <h2>{title}</h2>
