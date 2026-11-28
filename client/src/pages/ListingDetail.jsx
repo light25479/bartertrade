@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
-import { CONDITIONS, priceLabel, fit, thumb } from '../constants';
 import ReportButton from '../components/ReportButton';
 import ShareButtons from '../components/ShareButtons';
 import { CONDITIONS, priceLabel, fit, thumb, slugify } from '../constants';
 import usePageTitle from '../usePageTitle';
-
 
 function ContactBox({ listing }) {
   const navigate = useNavigate();
